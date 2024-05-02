@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>test</head>
+<body>
+
+<label for="csv_input">Choose a CSV file:</label>
+<input type="file" id="csv_input" name="csv_input" accept="text/csv" onchange="loadCsvFile()"/>
+<p class="content"></p>
+<script>
+    import Papa from "papaparse"
+
+    const loadCsvFile = () => {
+        const content = document.querySelector(".content")
+        const [file] = document.getElementById("csv_input").files
+        const reader = new FileReader()
+
+        reader.addEventListener(
+            "load",
+            () => {
+                // this will then display a text file
+                content.innerText = reader.result;
+            },
+            false,
+        )
+
+        if (file) {
+            reader.readAsText(file);
+        }
+    }
+    
+    
+    const handleOK = async () => {
+        const config = {
+            encoding: "UTF-8",
+            delimiter: ",",
+            header: true,
+            skipEmptyLines: "greedy"
+        }
+        let csvData = Papa.parse(fileContents.value, config)
+    }
+                
+</script>
+</body>
+</html>
