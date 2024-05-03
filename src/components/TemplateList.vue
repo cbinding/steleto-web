@@ -1,47 +1,30 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-defineProps({})
+import { useTemplateStore } from "@/stores/templateStore";
+import { storeToRefs } from "pinia";
 
-const templateList = ref([])
-const templateName = ref("")
+const store = useTemplateStore();
+const { templateItems } = storeToRefs(store);
 
-onMounted(() => {
-  getListFromLocalStorage()
-})
-
-const addToList = () => {
-  const newValue = (templateName.value || "").trim()
-  if (newValue !== "") {
-    templateList.value.push(templateName.value)
-    saveListToLocalStorage()
-  } 
+const newItem = () => {
+  const item = store.newItem()
+  console.log(item)  
+  store.addItem(item)
 }
-const removeFromList = () => {
-  const index = templateList.value.indexOf(templateName.value);
-  if (index > -1) { // only splice array when item is found
-    templateList.value.splice(index, 1); // 2nd parameter means remove one item only 
-    saveListToLocalStorage()   
-  }
+const delItem = (id) => { 
+  store.delItem(id)
 }
-
-const saveListToLocalStorage = () => {
-  localStorage.setItem("steleto.templates", JSON.stringify(templateList.value))
-}
-
-const getListFromLocalStorage = () => {
-  //templateList.value = JSON.parse(localStorage.getItem("steleto.templates"))
-}
-
-
-
 </script>
 
 <template>
-  <div>(StoredTemplateList component)</div>
-  <input v-model="templateName" placeholder="template name"/>
-  <button @click="addToList">Add to list</button>
-  <button @click="removeFromList">Remove from list</button>
-  <ul><li v-for="(item, index) in templateList" :key="index">{{ item }}</li></ul>
+  <div>(TemplateList component)</div>
+  <div>{{ store.counter }} items</div>
+  <button @click="newItem()">Create new item</button>
+  <ul>
+    <li v-for="item in templateItems" :key="item.id">
+      <span>{{ item.item.meta.title }}</span><!--TODO: fix item.item!-->
+      <span title="delete" style="cursor: pointer" @click="delItem(item.id)">&#10060;</span>
+    </li>
+  </ul>
 </template>
 
 <style scoped>
