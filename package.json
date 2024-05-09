@@ -11,6 +11,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "liquidjs": "^10.12.0",
+    "moment": "^2.30.1",
+    "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
     "pinia-plugin-persist": "^1.0.0",
     "vue": "^3.4.21"
