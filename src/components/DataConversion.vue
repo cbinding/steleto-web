@@ -18,14 +18,10 @@ const template = ref(template1)
 const delimdata = ref([])
 const results = ref("")
 
-//const inputFilePath = ref("")
 
 const delimFileSelected = (e) => {
   const file = e.target.files[0]
-  console.log(file)
-
-  //inputFilePath.value = file.
-
+  //console.log(file)
   loadDelimDataFromFile(file)
     .then(data => {
       delimdata.value = data
@@ -33,6 +29,7 @@ const delimFileSelected = (e) => {
       renderDataWithTemplate(delimdata.value, template.value)
     })
 }
+
 
 const templateFileSelected = (e) => { 
   const file = e.target.files[0]
@@ -46,49 +43,52 @@ const templateFileSelected = (e) => {
 
 	
 const loadTemplateFromFile = (file) => {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.onload = res => {
-				resolve(res.target.result);
-			};
-			reader.onerror = err => reject(err);
-			reader.readAsText(file);
-		});
-	}
-	
-	const loadDelimDataFromFile = (file, delimiter="\t", hasheader=true) => {
-		//const defaults = {}
-		//const options = {...defaults, ...config} 
-		
-		return new Promise((resolve, reject) => {
-			Papa.parse(file, {			
-				encoding: "UTF-8",
-				delimiter: delimiter,
-				header: hasheader,
-				skipEmptyLines: "greedy",			
-				complete: function(results) {
-					resolve(results.data)
-				},
-				error: function(err) {
-					reject(err)
-				}
-			})
-		})	
-	}
-	
-	const renderDataWithTemplate = (data, template) => {
-		const engine = new Liquid()
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = res => {
+			resolve(res.target.result);
+		};
+		reader.onerror = err => reject(err);
+		reader.readAsText(file);
+	});
+}
 
-		engine
-      .parseAndRender(template, { data: data })
-      .then(text => results.value = text)			
+  
+const loadDelimDataFromFile = (file, delimiter="\t", hasheader=true) => {
+	//const defaults = {}
+	//const options = {...defaults, ...config} 		
+	return new Promise((resolve, reject) => {
+		Papa.parse(file, {			
+			encoding: "UTF-8",
+			delimiter: delimiter,
+			header: hasheader,
+			skipEmptyLines: "greedy",			
+			complete: function(results) {
+				resolve(results.data)
+			},
+			error: function(err) {
+				reject(err)
+			}
+		})
+	})	
+}
+
+
+const renderDataWithTemplate = (data, template) => {
+	const engine = new Liquid()
+
+	engine
+    .parseAndRender(template, { data: data })
+    .then(text => results.value = text)			
 }	
+
 
 const saveResults = () => { 
   //const fileName = `results-12345.txt`
   const fileName = `steleto-${ moment().format("YYYYMMDDHHmmss") }.txt`
   saveTextToFile(results.value, fileName)
 }
+
 
 const saveTextToFile = (textData, fileName) => {
   let blob = new Blob([textData], { type: 'text/plain;charset=utf-8;' })
@@ -106,16 +106,16 @@ const saveTextToFile = (textData, fileName) => {
       link.click()
       document.body.removeChild(link)
     }
- }
-
+  }
 }
-		/* 
-		TODO:
-		* display CSV input data (sample?) in table 
-    * allow input data file(s) import 
-		* allow liquid template(s) import 
-		* allow for chaining of workflow?
-		*/
+
+/* 
+TODO:
+* display CSV input data (sample?) in table 
+* allow input data file(s) import 
+* allow liquid template(s) import 
+* allow for chaining of workflow?
+*/
  
 </script>
 

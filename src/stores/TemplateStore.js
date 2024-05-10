@@ -7,42 +7,54 @@ export const useTemplateStore = defineStore('templateStore', () => {
   const items = ref(JSON.parse(localStorage.getItem(LOCALSTORAGEKEY) || "[]"))  
   const selectedID = ref("")  
   const templates = computed(() => items.value)
-  const count = computed(() => templates.value.length)
+  const count = computed(() => items.value.length)
 
-  function newItem() { 
+  const newItem = () => { 
     const timestamp = new Date().toISOString()
     return {
       id: timestamp,
       meta: {
         created: timestamp,
         updated: timestamp,
-        creator: "(steleto)",
-        title: `(new item) ${timestamp}`,
-        description: "(description)"
+        creator: "steleto-web",
+        title: `new template (${timestamp})`,
+        description: ""
       },
-      data: "(data)"
+      content: ""
     }
   }
 
-  function getItem(id) {
-    return items.value.find((item) => item.id === id)    
-  }
-
-  function addItem(item) {
-    // TODO: check if it exists first
+  const exists = (id) => items.value.some((item) => item.id === id)
+  
+  const getItem = (id) => items.value.find((item) => item.id === id)    
+ 
+  const addItem = (item) => {
+    delItem(item?.id)
     items.value.push(item) 
     localStorage.setItem(LOCALSTORAGEKEY, JSON.stringify(items.value))
   }
 
-  function delItem(id) {
-    items.value = items.value.filter((item) => { return item.id !== id })
-    localStorage.setItem(LOCALSTORAGEKEY, JSON.stringify(items.value))
+  const delItem = (id) => {
+    if (exists(id)) {      
+      items.value = items.value.filter((item) => { return item.id !== id })
+      if (selectedID.value == id) selectedID.value = ''
+      localStorage.setItem(LOCALSTORAGEKEY, JSON.stringify(items.value))
+    }
   }  
 
-  function selItem(id) {
-    selectedID.value = id
-    //console.log(`selected '${selectedID.value}'`)    
+  const selItem = (id) => {
+    if (exists(id)) { selectedID.value = id }
   }
   
-  return { templates, count, newItem, getItem, addItem, delItem, selItem, selectedID }
+  return {
+    templates,
+    count,
+    exists,
+    newItem,
+    getItem,
+    addItem,
+    delItem,
+    selItem,
+    selectedID
+  }
 })

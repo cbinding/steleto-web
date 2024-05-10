@@ -1,7 +1,7 @@
 <script setup>
 import DataConversion from '@/components/DataConversion.vue'
 import TemplateList from '@/components/TemplateList.vue'
-import TemplateListItem from '@/components/TemplateListItem.vue'
+import TemplateItem from '@/components/TemplateItem.vue'
 </script>
 
 <template> 
@@ -10,7 +10,7 @@ import TemplateListItem from '@/components/TemplateListItem.vue'
     <br>
     <TemplateList/>
     <br>
-    <TemplateListItem/>
+    <TemplateItem/>
   
 </template>
 
