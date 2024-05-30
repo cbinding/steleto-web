@@ -121,21 +121,22 @@ TODO:
 
 <template>  
   <div>
-    <div>(DataConversion)</div>
+    <h3>Data Conversion</h3>
     <label for="csv_input">Choose a delimited data file:</label>
     <input type="file" id="csv_input" name="csv_input" accept="text/tab-separated-values" @change="delimFileSelected"/>
     <br>
     <label for="template_input">Choose a template file:</label>
     <input type="file" id="template_input" name="template_input" accept="text" @change="templateFileSelected"/>
     <br>
-    <label for="results">Results:</label>
+    <label for="results" class="capitalized">{{ $t("result", 2)}}:</label>
     <pre id="results">{{ results }}</pre>
 
-    <button @click="saveResults"><span>Save results</span></button>	    
+    <button @click="saveResults"><span>{{ $t("save")}}</span></button>	    
 </div>
 </template>
 
 <style scoped>
+  .capitalized {text-transform:capitalize; }
   #results {
     font-size: small;
     border: 1px solid lightgray;

@@ -1,11 +1,11 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-
+// TODO: individual field edits are not getting saved to local storage
 export const useTemplateStore = defineStore('templateStore', () => {
   const LOCALSTORAGEKEY = 'steletoweb.templates'
   const items = ref(JSON.parse(localStorage.getItem(LOCALSTORAGEKEY) || "[]"))  
-  const selectedID = ref("")  
+  const selectedID = ref(localStorage.getItem("selectedID") || "")  
   const templates = computed(() => items.value)
   const count = computed(() => items.value.length)
 
@@ -37,13 +37,20 @@ export const useTemplateStore = defineStore('templateStore', () => {
   const delItem = (id) => {
     if (exists(id)) {      
       items.value = items.value.filter((item) => { return item.id !== id })
-      if (selectedID.value == id) selectedID.value = ''
       localStorage.setItem(LOCALSTORAGEKEY, JSON.stringify(items.value))
+      if (selectedID.value == id) {
+        selectedID.value = ""
+        localStorage.setItem("selectedID", "")
+      }
+      
     }
   }  
 
   const selItem = (id) => {
-    if (exists(id)) { selectedID.value = id }
+    if (exists(id)) {
+      selectedID.value = id
+      localStorage.setItem('selectedID', selectedID.value)
+    }
   }
   
   return {

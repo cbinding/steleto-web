@@ -1,8 +1,10 @@
 <script setup>
 import { useTemplateStore } from "@/stores/TemplateStore";
+import { useI18n } from "vue-i18n";
 //import { storeToRefs } from "pinia";
 
 const store = useTemplateStore();
+const { t }  = useI18n();
 //const { templates } = storeToRefs(store);
 
 const newItem = () => {
@@ -17,8 +19,9 @@ const selItem = (id) => {
 
 const delItem = (id) => { 
   const item = store.getItem(id)
+  const msg = t("confirmDelete", { id: id })
   if (item) {
-    if (confirm(`Delete "${item?.meta?.title}" - sure?`) == true) {
+    if (confirm(`${ msg }`) == true) {
       store.delItem(id)
     }
   }
@@ -28,19 +31,31 @@ const delItem = (id) => {
 <template>
   <br>
   <div class="template-list-outer">
-    <h3>Template List</h3>
-    <button alt="create new template item" title="create new template item" @click="newItem()">&#10133; Create new</button><br>
+    <h3 class="capitalized">{{ $t('template', 2) }}</h3>
+    <button 
+      class="new-item" 
+      :alt="$t('new')" 
+      :title="$t('new')" 
+      @click="newItem()">&#10133; {{ $t('new') }}</button>
+    <br>
     <ul class="template-list">
-      <li v-for="item in store.templates" :key="item.id" @click="selItem(item.id)" :class="item.id == store.selectedID ? 'selected': ''">
+      <li v-for="item in store.templates" 
+        :key="item.id" @click="selItem(item.id)" 
+        :class="item.id == store.selectedID ? 'selected': ''">
         <span>{{ item.meta?.title }}</span>
-        <button class="delete-item" alt="delete" title="delete" @click="delItem(item.id)">&#10060;</button>
+        <button 
+          class="delete-item" 
+          :alt="$t('delete')" 
+          :title="$t('delete')" 
+          @click="delItem(item.id)">&#10060;</button>
       </li>
     </ul>
-    <div>({{ store.count }} items)</div>    
+    <div>({{ store.count }} {{ $t('items') }})</div>
   </div>
 </template>
 
 <style scoped>
+    .capitalized {text-transform:capitalize; }
     .template-list-outer {
       border: 1px solid lightgray;
       width: 60%;
