@@ -50,7 +50,7 @@ const delItem = (id) => {
           @click="delItem(item.id)">&#10060;</button>
       </li>
     </ul>
-    <div>({{ store.count }} {{ $t('items') }})</div>
+    <div>({{ store.count }} {{ store.count ==  1 ?  $t('item') : $t('item', 2) }})</div>
   </div>
 </template>
 

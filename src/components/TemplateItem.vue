@@ -14,24 +14,7 @@ const updateTimestamp = () => selectedItem.value.meta.updated = new Date().toISO
 <template>
     <div class="template-item">
         <h3 class="capitalized">{{ $t('template') }}</h3>
-        <label for="created" class="capitalized">{{ $t('created') }}:</label><br>
-        <input disabled
-          id="created"  
-          v-model="((selectedItem || {}).meta || {}).created"/>
-        <br>
-        <label for="updated"  class="capitalized">{{ $t('updated') }}:</label><br>
-        <input disabled
-          id="updated"  
-          v-model="((selectedItem || {}).meta || {}).updated"/>
-        <br>
-        <label for="creator"  class="capitalized">{{ $t('creator') }}:</label><br>
-        <input 
-          :disabled="!selectedItem"
-          id="creator" 
-          v-model="((selectedItem || {}).meta || {}).creator" 
-          @input="updateTimestamp" 
-          :placeholder='`(${ t("creator") })`'/>
-        <br>
+        
         <label for="title"  class="capitalized">{{ $t('title') }}:</label><br>
         <input 
           :disabled="!selectedItem"
@@ -48,6 +31,25 @@ const updateTimestamp = () => selectedItem.value.meta.updated = new Date().toISO
           @input="updateTimestamp" 
           :placeholder='`(${ t("description") })`'></textarea>    
         <br>
+        <label for="creator"  class="capitalized">{{ $t('creator') }}:</label><br>
+        <input 
+          :disabled="!selectedItem"
+          id="creator" 
+          v-model="((selectedItem || {}).meta || {}).creator" 
+          @input="updateTimestamp" 
+          :placeholder='`(${ t("creator") })`'/>
+        <br>
+        <label for="created" class="capitalized">{{ $t('created') }}:</label>
+        <input disabled
+          id="created" 
+          :value="((selectedItem || {}).meta || {}).created"/>
+        <br>
+        <label for="updated"  class="capitalized">{{ $t('updated') }}:</label><br>
+        <input disabled
+          id="updated"  
+          :value="((selectedItem || {}).meta || {}).updated"/>
+        <br>
+       
         <label for="content"  class="capitalized">{{ $t('content') }}:</label><br>
         <textarea 
           :disabled="!selectedItem"

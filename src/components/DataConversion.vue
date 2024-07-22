@@ -121,7 +121,7 @@ TODO:
 
 <template>  
   <div>
-    <h3>Data Conversion</h3>
+    <h3 class="capitalized">{{ $t("dataConversion") }}</h3>
     <label for="csv_input">Choose a delimited data file:</label>
     <input type="file" id="csv_input" name="csv_input" accept="text/tab-separated-values" @change="delimFileSelected"/>
     <br>
