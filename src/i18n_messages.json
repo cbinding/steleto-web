@@ -30,7 +30,7 @@
     "result": "result | results",
     "save": "save",
     "template": "template | templates",
-    "title": "title: titles",
+    "title": "title | titles",
     "updated": "updated"
   },
   "es": {
@@ -64,7 +64,7 @@
     "result": "résultat | résultats",
     "save": "enregistrer",
     "template": "modèle | modèles",
-    "title": "titre",
+    "title": "titre | titres",
     "updated": "actualisé"
   }
 }

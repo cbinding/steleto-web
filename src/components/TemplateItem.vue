@@ -1,21 +1,37 @@
 <script setup>
 import { computed } from 'vue'
 import { useTemplateStore } from "@/stores/TemplateStore"
-import { useI18n } from "vue-i18n";
-//import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n"
 
-const { t }  = useI18n()
-
+const { t, locale, fallbackLocale }  = useI18n()
 const store = useTemplateStore()
 const selectedItem = computed(() => store.getItem(store.selectedID))
 const updateTimestamp = () => selectedItem.value.meta.updated = new Date().toISOString()
+const ISODateTimeTolocaleDateTime = (isoDateTime) => { 
+  const d = new Date(isoDateTime)
+  //return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`
+  const options = {
+    //dateStyle: 'full',
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+    //timeZone: "America/Los_Angeles",
+  }
+  return new Intl.DateTimeFormat([locale.value, fallbackLocale.value], options).format(d)
+}
+const created = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.meta.created))
+const updated = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.meta.updated))
 </script>
 
-<template>
+<template>    
     <div class="template-item">
         <h3 class="capitalized">{{ $t('template') }}</h3>
         
-        <label for="title"  class="capitalized">{{ $t('title') }}:</label><br>
+        <label for="title" class="capitalized">{{ $t('title') }}:</label><br>
         <input 
           :disabled="!selectedItem"
           id="title" 
@@ -42,12 +58,12 @@ const updateTimestamp = () => selectedItem.value.meta.updated = new Date().toISO
         <label for="created" class="capitalized">{{ $t('created') }}:</label>
         <input disabled
           id="created" 
-          :value="((selectedItem || {}).meta || {}).created"/>
+          :value="created"/>
         <br>
         <label for="updated"  class="capitalized">{{ $t('updated') }}:</label><br>
         <input disabled
           id="updated"  
-          :value="((selectedItem || {}).meta || {}).updated"/>
+          :value="updated"/>
         <br>
        
         <label for="content"  class="capitalized">{{ $t('content') }}:</label><br>

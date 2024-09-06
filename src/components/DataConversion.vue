@@ -19,10 +19,10 @@ const delimdata = ref([])
 const results = ref("")
 
 
-const delimFileSelected = (e) => {
+const delimitedFileSelected = (e) => {
   const file = e.target.files[0]
   //console.log(file)
-  loadDelimDataFromFile(file)
+  loadDelimitedDataFromFile(file)
     .then(data => {
       delimdata.value = data
       //console.log(data)
@@ -54,7 +54,7 @@ const loadTemplateFromFile = (file) => {
 }
 
   
-const loadDelimDataFromFile = (file, delimiter="\t", hasheader=true) => {
+const loadDelimitedDataFromFile = (file, delimiter="\t", hasheader=true) => {
 	//const defaults = {}
 	//const options = {...defaults, ...config} 		
 	return new Promise((resolve, reject) => {
@@ -83,9 +83,10 @@ const renderDataWithTemplate = (data, template) => {
 }	
 
 
-const saveResults = () => { 
+const saveResults = (fileName) => { 
   //const fileName = `results-12345.txt`
-  const fileName = `steleto-${ moment().format("YYYYMMDDHHmmss") }.txt`
+  if(!fileName)
+    fileName = `steleto-${ moment().format("YYYYMMDDHHmmss") }.txt`
   saveTextToFile(results.value, fileName)
 }
 
@@ -123,13 +124,13 @@ TODO:
   <div>
     <h3 class="capitalized">{{ $t("dataConversion") }}</h3>
     <label for="csv_input">Choose a delimited data file:</label>
-    <input type="file" id="csv_input" name="csv_input" accept="text/tab-separated-values" @change="delimFileSelected"/>
+    <input type="file" id="csv_input" name="csv_input" accept="text/tab-separated-values" @change="delimitedFileSelected"/>
     <br>
     <label for="template_input">Choose a template file:</label>
     <input type="file" id="template_input" name="template_input" accept="text" @change="templateFileSelected"/>
     <br>
     <label for="results" class="capitalized">{{ $t("result", 2)}}:</label>
-    <pre id="results">{{ results }}</pre>
+    <pre id="results" name="results">{{ results }}</pre>
 
     <button @click="saveResults"><span>{{ $t("save")}}</span></button>	    
 </div>

@@ -9,9 +9,11 @@ import i18n_messages from './i18n_messages.json'
 const pinia = createPinia()
 
 const i18n = createI18n({
-  locale: 'es',
+  locale: 'fr',
   fallbackLocale: 'en',
-  messages: i18n_messages   
+  messages: i18n_messages,
+  globalInjection: true,
+  legacy: false
 })
 
 createApp(App)
