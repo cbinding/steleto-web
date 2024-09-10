@@ -41,8 +41,7 @@ export const useTemplateStore = defineStore('templateStore', () => {
       if (selectedID.value == id) {
         selectedID.value = ""
         localStorage.setItem("selectedID", "")
-      }
-      
+      }      
     }
   }  
 

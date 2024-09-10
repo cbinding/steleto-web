@@ -33,23 +33,25 @@ const delItem = (id) => {
   <div class="template-list-outer">
     <h3 class="capitalized">{{ $t('template', 2) }}</h3>
     <button 
-      class="new-item" 
+      class="btn btn-sm btn-outline-primary" 
       :alt="$t('new')" 
       :title="$t('new')" 
       @click="newItem()">&#10133; {{ $t('new') }}</button>
     <br>
-    <ul class="template-list">
+    <ul class="list-group overflow-y-scroll template-list">
       <li v-for="item in store.templates" 
         :key="item.id" @click="selItem(item.id)" 
-        :class="item.id == store.selectedID ? 'selected': ''">
+        class="list-group-item-action"
+        :aria-current="item.id == store.selectedID"
+        :disabled="item.id == store.selectedID">
         <span>{{ item.meta?.title }}</span>
         <button 
-          class="delete-item" 
+          class="btn btn-sm btn-outline-primary float-end" 
           :alt="$t('delete')" 
           :title="$t('delete')" 
-          @click="delItem(item.id)">&#10060;</button>
+          @click="delItem(item.id)">&#10060;</button> 
       </li>
-    </ul>
+    </ul>    
     <div>({{ store.count }} {{ store.count ==  1 ?  $t('item') : $t('item', 2) }})</div>
   </div>
 </template>
@@ -63,34 +65,21 @@ const delItem = (id) => {
       margin: 2px;
     }
     .template-list {
-      margin:5px;
-      padding: 5px;
-      list-style-type: none;
       border: 1px solid lightgray;
-      overflow-y: scroll;
-      
+      overflow-y: scroll;      
       height: 10em;
     }
     .template-list li {
-      cursor: pointer;
-      padding: 2px;
+      cursor: pointer;      
     }
-    .template-list li:hover {
+    .template-list1 li:hover {
       background-color: lightgray;
     }
-    .template-list li.selected {
+    .template-list1 li.selected {
       background-color: lightsteelblue;
     }
     .delete-item {
-      cursor: pointer;
-      border: 1px solid gray;
       float: right;      
-    }
-    .delete-item:hover {
-      background-color: lightgray;
-    }
-    button {
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    }   
+    
 </style>

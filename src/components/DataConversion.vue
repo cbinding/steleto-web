@@ -5,7 +5,7 @@ import Papa from 'papaparse'
 import moment from 'moment'
 
 // Tester..
-const template1 = `
+const testTemplate1 = `
 {%- for row in data -%}
 {% if row.concept_id %}
 {%- capture CONCEPTURI -%}http://tempuri/schemes/1/concepts/{{ row.concept_id | strip | url_encode }}{%- endcapture -%}
@@ -13,36 +13,49 @@ const template1 = `
 {% endif %}
 {%- endfor -%}
 `
-
-const template = ref(template1)
-const delimdata = ref([])
+const template = ref(testTemplate1)
+const delimitedData = ref([])
 const results = ref("")
 
+const selectDelimitedFile = () => {
+  // click the underlying file control
+  const control = document.getElementById("csv_input")
+  control.click()
+}
+
+const selectTemplateFile = () => {
+  // click the underlying file control
+  const control = document.getElementById("template_input")
+  control.click()
+}
 
 const delimitedFileSelected = (e) => {
-  const file = e.target.files[0]
-  //console.log(file)
-  loadDelimitedDataFromFile(file)
-    .then(data => {
-      delimdata.value = data
-      //console.log(data)
-      renderDataWithTemplate(delimdata.value, template.value)
-    })
+  const csvFile = e.target.files[0]
+
+  // change text on wrapper control to display chosen file name
+  // (wrapper used to display translated labels for file input control)
+  let control = document.getElementById("selectedCsvFileName")
+  control.value = csvFile.name
+            
+  loadDelimitedDataFromFile(csvFile)
+    .then(data => delimitedData.value = data)
 }
 
 
 const templateFileSelected = (e) => { 
-  const file = e.target.files[0]
-  loadTemplateFromFile(file)
-    .then(data => {
-      template.value = data
-      //console.log(data)
-      renderDataWithTemplate(delimdata.value, template.value)
-    });
+  const templateFile = e.target.files[0]
+
+  // change text on wrapper control to display chosen file name
+  // (wrapper used to display translated labels for file input control)
+  let control = document.getElementById("selectedTemplateFileName")
+  control.value = templateFile.name
+
+  loadTextFromFile(templateFile)
+    .then(data => template.value = data)
 }
 
 	
-const loadTemplateFromFile = (file) => {
+const loadTextFromFile = (file) => {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 		reader.onload = res => {
@@ -53,15 +66,19 @@ const loadTemplateFromFile = (file) => {
 	});
 }
 
-  
-const loadDelimitedDataFromFile = (file, delimiter="\t", hasheader=true) => {
-	//const defaults = {}
-	//const options = {...defaults, ...config} 		
+//const loadJsonDataFromFile = file => { 
+ //const contents = {}
+ //return { data: contents }
+//}
+
+const loadDelimitedDataFromFile = (file, delimiter="\t", hasHeader=true) => {
+	// const defaults = {}
+	// const options = { ...defaults, ...config } 		
 	return new Promise((resolve, reject) => {
 		Papa.parse(file, {			
 			encoding: "UTF-8",
 			delimiter: delimiter,
-			header: hasheader,
+			header: hasHeader,
 			skipEmptyLines: "greedy",			
 			complete: function(results) {
 				resolve(results.data)
@@ -73,17 +90,16 @@ const loadDelimitedDataFromFile = (file, delimiter="\t", hasheader=true) => {
 	})	
 }
 
+const doDataConversion = () => { 
+  const engine = new Liquid()
 
-const renderDataWithTemplate = (data, template) => {
-	const engine = new Liquid()
-
-	engine
-    .parseAndRender(template, { data: data })
-    .then(text => results.value = text)			
-}	
+  engine
+    .parseAndRender(template.value, { data: delimitedData.value })
+    .then(text => results.value = text)	
+}
 
 
-const saveResults = (fileName) => { 
+const saveResultsToFile = (fileName=null) => { 
   //const fileName = `results-12345.txt`
   if(!fileName)
     fileName = `steleto-${ moment().format("YYYYMMDDHHmmss") }.txt`
@@ -110,6 +126,7 @@ const saveTextToFile = (textData, fileName) => {
   }
 }
 
+
 /* 
 TODO:
 * display CSV input data (sample?) in table 
@@ -121,28 +138,49 @@ TODO:
 </script>
 
 <template>  
-  <div>
+  <form>    
     <h3 class="capitalized">{{ $t("dataConversion") }}</h3>
-    <label for="csv_input">Choose a delimited data file:</label>
-    <input type="file" id="csv_input" name="csv_input" accept="text/tab-separated-values" @change="delimitedFileSelected"/>
-    <br>
-    <label for="template_input">Choose a template file:</label>
-    <input type="file" id="template_input" name="template_input" accept="text" @change="templateFileSelected"/>
-    <br>
-    <label for="results" class="capitalized">{{ $t("result", 2)}}:</label>
-    <pre id="results" name="results">{{ results }}</pre>
+    
+    <!--CSV file input wrapped to allow for translated text "select file" and "no file selected"-->
+    <div class="mb-3">
+      <label for="csv_input">{{ $t("selectDelimitedDataFile") }}</label> 
+      <div class="input-group">            
+        <span class="input-group-text btn btn-outline-secondary rounded" @click="selectDelimitedFile">{{ $t("select") }}</span>
+        <input id="selectedCsvFileName" :placeholder="$t('noFileSelected')" readonly class="form-control rounded"/>
+        <input type="file" id="csv_input" name="csv_input" style="width: 100%; display: none;" @change="delimitedFileSelected"/>
+      </div>
+    </div>      
+    
+    <!--template file input wrapped to allow for translated text "select file" and "no file selected"-->
+    <div class="mb-3">
+      <label for="template_input">{{ $t("selectTemplateFile") }}</label> 
+      <div class="input-group">            
+        <span class="input-group-text btn btn-outline-secondary rounded" @click="selectTemplateFile">{{ $t("select") }}</span>
+        <input id="selectedTemplateFileName" :placeholder="$t('noFileSelected')" readonly class="form-control rounded"/>
+        <input type="file" id="template_input" name="template_input" style="width: 100%; display: none;" @change="templateFileSelected"/>
+      </div>
+    </div>
 
-    <button @click="saveResults"><span>{{ $t("save")}}</span></button>	    
-</div>
+    <div class="mb-3">
+      <button class="btn btn-sm btn-outline-secondary" @click.prevent="doDataConversion">{{ $t("convertData")}}</button>	
+    </div>
+
+    <div class="mb-3">
+      <label for="conversion_results" class="capitalized">{{ $t("result", 2)}}</label>
+      <pre id="conversion_results" name="conversion_results">{{ results }}</pre>
+      <button class="btn btn-sm btn-outline-primary" @click.prevent="saveResultsToFile">{{ $t("save")}}</button>	  
+    </div>
+      
+  </form>  
 </template>
 
 <style scoped>
   .capitalized {text-transform:capitalize; }
-  #results {
+  #conversion_results {
     font-size: small;
     border: 1px solid lightgray;
     overflow: scroll;
     width: 800px;
-    height: 300px;
+    height: 500px;
   }
 </style>

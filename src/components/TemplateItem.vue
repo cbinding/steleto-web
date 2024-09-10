@@ -6,6 +6,7 @@ import { useI18n } from "vue-i18n"
 const { t, locale, fallbackLocale }  = useI18n()
 const store = useTemplateStore()
 const selectedItem = computed(() => store.getItem(store.selectedID))
+// TODO: when item is edited (timespan changes), save to local storage
 const updateTimestamp = () => selectedItem.value.meta.updated = new Date().toISOString()
 const ISODateTimeTolocaleDateTime = (isoDateTime) => { 
   const d = new Date(isoDateTime)
@@ -23,57 +24,76 @@ const ISODateTimeTolocaleDateTime = (isoDateTime) => {
   }
   return new Intl.DateTimeFormat([locale.value, fallbackLocale.value], options).format(d)
 }
-const created = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.meta.created))
-const updated = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.meta.updated))
+const created = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.meta?.created))
+const updated = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.meta?.updated))
 </script>
 
 <template>    
-    <div class="template-item">
+    <form class="template-item">
         <h3 class="capitalized">{{ $t('template') }}</h3>
         
-        <label for="title" class="capitalized">{{ $t('title') }}:</label><br>
-        <input 
-          :disabled="!selectedItem"
-          id="title" 
-          v-model="((selectedItem || {}).meta || {}).title" 
-          @input="updateTimestamp" 
-          :placeholder='`(${ t("title") })`'/>
-        <br>
-        <label for="description"  class="capitalized">{{ $t('description') }}:</label><br>
-        <textarea 
-          :disabled="!selectedItem"
-          id="description" 
-          v-model="((selectedItem || {}).meta || {}).description" 
-          @input="updateTimestamp" 
-          :placeholder='`(${ t("description") })`'></textarea>    
-        <br>
-        <label for="creator"  class="capitalized">{{ $t('creator') }}:</label><br>
-        <input 
-          :disabled="!selectedItem"
-          id="creator" 
-          v-model="((selectedItem || {}).meta || {}).creator" 
-          @input="updateTimestamp" 
-          :placeholder='`(${ t("creator") })`'/>
-        <br>
-        <label for="created" class="capitalized">{{ $t('created') }}:</label>
-        <input disabled
-          id="created" 
-          :value="created"/>
-        <br>
-        <label for="updated"  class="capitalized">{{ $t('updated') }}:</label><br>
-        <input disabled
-          id="updated"  
-          :value="updated"/>
-        <br>
-       
-        <label for="content"  class="capitalized">{{ $t('content') }}:</label><br>
-        <textarea 
-          :disabled="!selectedItem"
-          id="content" 
-          v-model="(selectedItem || {}).content" 
-          @input="updateTimestamp" 
-          :placeholder='`(${ t("content") })`'></textarea>      
-    </div>
+        <div class="mb-3">
+          <label for="title" class="form-label capitalized">{{ $t('title') }}</label>
+          <input 
+            class="form-control" 
+            :disabled="!selectedItem"
+            id="title" 
+            v-model="((selectedItem || {}).meta || {}).title" 
+            @input="updateTimestamp" 
+            :placeholder='`(${ t("title") })`'/>
+        </div>
+
+        <div class="mb-3">
+          <label for="description"  class="form-label capitalized">{{ $t('description') }}</label>
+          <textarea 
+            class="form-control" 
+            :disabled="!selectedItem"
+            id="description" 
+            v-model="((selectedItem || {}).meta || {}).description" 
+            @input="updateTimestamp" 
+            :placeholder='`(${ t("description") })`'></textarea>    
+        </div>
+
+        <div class="mb-3">
+          <label for="creator"  class="form-label capitalized">{{ $t('creator') }}</label><br>
+          <input 
+            class="form-control" 
+            :disabled="!selectedItem"
+            id="creator" 
+            v-model="((selectedItem || {}).meta || {}).creator" 
+            @input="updateTimestamp" 
+            :placeholder='`(${ t("creator") })`'/>
+        </div>
+
+        <div class="mb-3">
+          <label for="created" class="form-label capitalized">{{ $t('created') }}</label>
+          <input 
+            class="form-control" 
+            disabled
+            id="created" 
+            :value="created"/>
+        </div>
+
+        <div class="mb-3">
+          <label for="updated"  class="form-label capitalized">{{ $t('updated') }}</label><br>
+          <input 
+            class="form-control" 
+            disabled
+            id="updated" 
+            :value="updated"/>
+        </div>
+
+        <div class="mb-3">
+          <label for="content"  class="form-label capitalized">{{ $t('content') }}</label><br>
+          <textarea 
+            class="form-control" 
+            :disabled="!selectedItem"
+            id="content" 
+            v-model="(selectedItem || {}).content" 
+            @input="updateTimestamp" 
+            :placeholder='`(${ t("content") })`'></textarea>
+        </div>      
+    </form>
 </template>
 
 <style scoped>
@@ -82,15 +102,8 @@ const updated = computed(() => ISODateTimeTolocaleDateTime(selectedItem.value.me
   border: 1px solid lightgray;
   width: 60%;
   padding: 10px;
-  margin: 2px;
 }
-input, textarea {
-  width: 100%;
-}
-input:hover, textarea:hover {
+input:hover:enabled, textarea:hover:enabled {
   background-color: ghostwhite;
-}
-textarea { 
-  height: 6em;
 }
 </style>
