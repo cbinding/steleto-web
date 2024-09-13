@@ -7,16 +7,13 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
 
-// Import all of Bootstrap's JS
-//import * as bootstrap from 'bootstrap'
-
 import App from './App.vue'
 import i18n_messages from './i18n_messages.json'
 
 const pinia = createPinia()
 
 const i18n = createI18n({
-  locale: 'fr',
+  locale: localStorage.getItem('locale') || 'en',
   fallbackLocale: 'en',
   messages: i18n_messages,
   globalInjection: true,
