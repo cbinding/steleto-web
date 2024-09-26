@@ -152,10 +152,11 @@ TODO:
   <div class="container">
     <div class="row align-items-end">
       <div class="col">
-        <h3 class="text-capitalize" :lang="locale">STELETO&nbsp;{{ $t('dataConversion') }}</h3>
+        <!--<h3 class="text-capitalize" :lang="locale">STELETO&nbsp;{{ $t('dataConversion') }}</h3>-->
+        <h3 class="text-capitalize" :lang="locale">{{ $t('dataConversion') }}</h3>
       </div>   
       <div class="col-3">
-        <LocaleSelect/>
+        <LocaleSelect options="cy,cs,de,en,es,fr,it"/>
       </div> 
     </div>
     
@@ -224,6 +225,21 @@ TODO:
         </div>
       </div>   
     </div>
+
+    <!--<div class="row">
+      <div class="col">
+        <label 
+          for="csvPreview" 
+          class="text-capitalize col-form-label-sm" 
+          :lang="locale">preview</label>
+        <pre class="overflow-y-scroll">{{ delimitedData }}</pre>
+      </div>
+      <div class="col"><label 
+          for="templatePreview" 
+          class="text-capitalize col-form-label-sm" 
+          :lang="locale">preview</label>
+        <pre class="overflow-y-scroll">{{ template }}</pre></div>
+    </div>-->
 
     <div class="row">
       
