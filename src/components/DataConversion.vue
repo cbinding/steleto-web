@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 import { Liquid } from 'liquidjs'
 import Papa from 'papaparse'
 import moment from 'moment'
@@ -90,31 +90,26 @@ const loadDelimitedDataFromFile = (file, delimiter = '\t', hasHeader = true) => 
   })
 }
 
-const doDataConversion = async () => {
-  working.value = false
+const doDataConversion = () => {
+  results.value = '' // not refreshing?
   working.value = true // doesn't show spinner?
-  results.value = '' // control not refreshing before doing the conversion?
-  nextTick() // none of this forces spinner to show...
-  const control = document.getElementById('myspinnercontainer')
-  control.setAttribute('key', new Date().getTime())
-  // none of this forces spinner to show...
 
-  nextTick(() => {
+  setTimeout(() => {        
     const engine = new Liquid()
-
-    engine.parseAndRender(template.value, { data: delimitedData.value }).then((text) => {
-      results.value = text
-      working.value = false
-    })
-  })
+    
+    engine.parseAndRender(template.value, { data: delimitedData.value })
+      .then((text) => {
+        results.value = text
+        working.value = false
+      }).catch(() => working.value = false)
+  }, 0)
 }
 
 const saveResultsToFile = (fileName = null) => {
   //const fileName = `results-12345.txt`
   //console.log(fileName)
-  if (results.value.trim().length == 0)
-    return
-  
+  if (results.value.trim().length == 0) return
+
   if (!fileName) fileName = `steleto-${moment().format('YYYYMMDDHHmmss')}.txt`
 
   saveTextToFile(results.value, fileName)
@@ -154,30 +149,31 @@ TODO:
       <div class="col">
         <!--<h3 class="text-capitalize" :lang="locale">STELETO&nbsp;{{ $t('dataConversion') }}</h3>-->
         <h3 class="text-capitalize" :lang="locale">{{ $t('dataConversion') }}</h3>
-      </div>   
-      <div class="col-3">
-        <LocaleSelect options="cy,cs,de,en,es,fr,it"/>
-      </div> 
+      </div>
+      <div class="col-4">
+        <LocaleSelect options="cy,cs,de,en,es,fr,it" />
+      </div>
     </div>
-    
+
     <!--CSV file input wrapped to allow for translated text "select file" and "no file selected"-->
     <div class="row mb-3">
       <div class="col">
-        <label 
-          for="csv_input" 
-          class="col-form-label-sm  text-capitalize" 
-          :lang="locale">{{ $t('delimitedDataFile') }}</label>
+        <label for="csv_input" class="col-form-label-sm text-capitalize" :lang="locale">{{
+          $t('delimitedDataFile')
+        }}</label>
         <div class="input-group">
           <button
-            class="btn btn-sm btn-outline-secondary rounded"
+            class="btn btn-sm btn-outline-secondary rounded shadow-sm"
             :lang="locale"
             @click.stop.prevent="selectDelimitedFile"
-            >&#128441;&nbsp;{{ $t('selectFile') }}</button>
+          >
+            &#128441;&nbsp;{{ $t('selectFile') }}
+          </button>
           <input
             id="selectedCsvFileName"
             :placeholder="$t('noFileSelected')"
             readonly
-            class="form-control form-control-sm rounded"
+            class="form-control form-control-sm rounded shadow-sm"
             :lang="locale"
           />
           <input
@@ -192,26 +188,26 @@ TODO:
           />
         </div>
       </div>
-    
 
       <!--template file input wrapped to allow for translated text "select file" and "no file selected"-->
       <div class="col">
-        <label 
-          for="template_input" 
-          class="col-form-label-sm text-capitalize" 
-          :lang="locale">LIQUID {{ $t('templateFile') }}</label>
+        <label for="template_input" class="col-form-label-sm text-capitalize" :lang="locale"
+          >LIQUID {{ $t('templateFile') }}</label
+        >
         <div class="input-group">
           <button
-            class="btn btn-sm btn-outline-secondary rounded"
+            class="btn btn-sm btn-outline-secondary rounded shadow-sm"
             :lang="locale"
             @click.stop.prevent="selectTemplateFile"
-            >&#128441;&nbsp;{{ $t('selectFile') }}</button>
+          >
+            &#128441;&nbsp;{{ $t('selectFile') }}
+          </button>
           <input
             id="selectedTemplateFileName"
             :placeholder="$t('noFileSelected')"
             readonly
             :lang="locale"
-            class="form-control form-control-sm rounded"
+            class="form-control form-control-sm rounded shadow-sm"
           />
           <input
             type="file"
@@ -223,7 +219,7 @@ TODO:
             @change="templateFileSelected"
           />
         </div>
-      </div>   
+      </div>
     </div>
 
     <!--<div class="row">
@@ -242,67 +238,56 @@ TODO:
     </div>-->
 
     <div class="row">
-      
-      <div 
-        class="col text-end" 
-        id="myspinnercontainer">
-        <strong 
-          role="status" 
-          v-show="working" 
-          :lang="locale">{{ $t('working') }}...</strong>
-        <span 
-          id="myspinner" 
-          class="spinner-border spinner-border-sm mx-2" 
-          v-show="working"></span>
+      <div class="col text-end" id="myspinnercontainer">
+        <strong role="status" v-show="working" :lang="locale">{{ $t('working') }}...</strong>
+        <span id="myspinner" class="spinner-border spinner-border-sm mx-2" v-show="working"></span>
       </div>
-      <div class="col-3 btn-group text-end">
+      <div class="col-4 btn-group text-end">
         <button
-          class="btn btn-sm btn-outline-secondary form-control"
+          class="btn btn-sm btn-outline-secondary form-control shadow-sm"
           :lang="locale"
           :alt="$t('convertData')"
           :title="$t('convertData')"
-          @click.stop.prevent="doDataConversion()"          
+          @click.stop.prevent="doDataConversion()"
         >
           <span>🗲&nbsp;{{ $t('convert') }}</span>
         </button>
-      
+
         <button
-          class="btn btn-sm btn-outline-secondary form-control"
+          class="btn btn-sm btn-outline-secondary form-control shadow-sm"
           :lang="locale"
           :alt="$t('saveResult', 2)"
           :title="$t('saveResult', 2)"
           @click.stop.prevent="saveResultsToFile()"
         >
           <span>&#128427;&nbsp;{{ $t('save') }}</span>
-        </button>             
-      </div>   
+        </button>
+      </div>
     </div>
 
     <div class="row">
       <div class="col">
-        <label 
-          for="conversionResults" 
+        <div 
           class="text-capitalize col-form-label-sm" 
-          :lang="locale">{{ $t('result', 2) }}</label>
-        <pre 
-          id="conversionResults" 
-          name="conversionResults" 
-          class="p-1"
-          :lang="locale"><code>{{ results }}</code></pre>
-      </div>  
-      
+          :lang="locale"
+          >{{$t('result', 2)}}</div>
+        <pre
+          id="conversion_results"
+          name="conversion_results"
+          class="p-1 shadow-sm"
+          :lang="locale"
+        >{{ results }}</pre>
+      </div>
     </div>
-   
-  </div> 
+  </div>
 </template>
 
 <style scoped>
-#conversionResults {
+#conversion_results {
   font-size: small;
   border: 1px solid lightgray;
   overflow: scroll;
   min-width: 1000px;
   height: 700px;
 }
-
 </style>

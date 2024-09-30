@@ -1,6 +1,6 @@
 <!--TODO: locale selection for locale-->
 <script setup>
-import { watch, computed } from "vue"
+import { watch, computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 const { locale } = useI18n()
 import languages from "@/i18n_languages.json"
@@ -17,6 +17,8 @@ const props = defineProps({
     default: "cy, en",
   }
 })
+
+const visible = ref(true)
 
 // sorted subset of i18n_languages based on options (csv) property
 const languageSubset = computed(() => {    
@@ -49,18 +51,17 @@ const getFlagEmoji = (countryCode) => {
 </script>
 
 <template>    
-    
-    <span class="input-group input-group-sm" >
-        <span 
-            class="input-group-text" 
-            for="localeSelector"
-            :alt="$t('settings')"
-            :title="$t('settings')">&#x2699;</span>    
+   <div class="float-end">
+    <span class="input-group input-group-sm">
+          
         <select 
             v-model="locale"
             id="localeSelector" 
-            class='form-select form-select-sm'
+            class='form-select form-select-sm shadow-sm'
             @change="changed"
+            @blur="visible=false"
+            @mouseleave="visible=false"
+            v-show="visible"
             :disabled="props.disabled"
             :lang="locale">
             <option 
@@ -75,8 +76,14 @@ const getFlagEmoji = (countryCode) => {
                 &nbsp;
                 <span>{{ item.label || item.labelEN || item.id }}</span>
             </option>                 
-        </select>        
-    </span>
+        </select>
+        <button 
+            class="btn btn-outline-light shadow-sm" 
+            for="localeSelector"
+            :alt="$t('settings')"
+            @click="visible = !visible"
+            :title="$t('settings')">&#x2699;</button>          
+    </span></div>
 </template>
 
 <style scoped>
