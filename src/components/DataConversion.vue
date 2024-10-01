@@ -1,10 +1,11 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Liquid } from 'liquidjs'
 import Papa from 'papaparse'
 import moment from 'moment'
 import { useI18n } from 'vue-i18n'
 import LocaleSelect from '@/components/LocaleSelect.vue'
+//import CycleButton from '@/components/CycleButton.vue'
 const { locale } = useI18n()
 
 // Tester..
@@ -20,6 +21,10 @@ const template = ref(testTemplate1)
 const delimitedData = ref([])
 const results = ref('')
 const working = ref(false)
+const wrapped = ref(false)
+//const delimiter = ref('')
+
+const canSave = computed(() => working.value == false && results.value.length > 0)
 
 const selectDelimitedFile = () => {
   // click the underlying file control
@@ -39,7 +44,7 @@ const delimitedFileSelected = (e) => {
   // change text on wrapper control to display chosen file name
   // (wrapper used to display translated labels for file input control)
   let control = document.getElementById('selectedCsvFileName')
-  control.value = csvFile.name
+  control.value = csvFile?.name
 
   loadDelimitedDataFromFile(csvFile).then((data) => (delimitedData.value = data))
 }
@@ -50,7 +55,7 @@ const templateFileSelected = (e) => {
   // change text on wrapper control to display chosen file name
   // (wrapper used to display translated labels for file input control)
   let control = document.getElementById('selectedTemplateFileName')
-  control.value = templateFile.name
+  control.value = templateFile?.name
 
   loadTextFromFile(templateFile).then((data) => (template.value = data))
 }
@@ -91,24 +96,32 @@ const loadDelimitedDataFromFile = (file, delimiter = '\t', hasHeader = true) => 
 }
 
 const doDataConversion = () => {
-  results.value = '' // not refreshing?
-  working.value = true // doesn't show spinner?
+  results.value = ''
 
-  setTimeout(() => {        
+  // no point continuing if data or template not provided
+  if (template.value.trim().length == 0 || delimitedData.value.length == 0) return
+
+  // show the spinner
+  working.value = true
+
+  // done this way so spinner displays
+  setTimeout(() => {
     const engine = new Liquid()
-    
-    engine.parseAndRender(template.value, { data: delimitedData.value })
+
+    engine
+      .parseAndRender(template.value, { data: delimitedData.value })
       .then((text) => {
         results.value = text
         working.value = false
-      }).catch(() => working.value = false)
+      })
+      .catch(() => (working.value = false))
   }, 0)
 }
 
 const saveResultsToFile = (fileName = null) => {
   //const fileName = `results-12345.txt`
   //console.log(fileName)
-  if (results.value.trim().length == 0) return
+  if (!canSave.value) return
 
   if (!fileName) fileName = `steleto-${moment().format('YYYYMMDDHHmmss')}.txt`
 
@@ -136,6 +149,27 @@ const saveTextToFile = (textData, fileName) => {
   }
 }
 
+const clearAll = () => {
+  let control = null
+
+  control = document.getElementById('selectedCsvFileName')
+  if (control?.value) control.value = null
+
+  control = document.getElementById('selectedTemplateFileName')
+  if (control?.value) control.value = null
+
+  control = document.getElementById('csv_input')
+  if (control?.value) control.value = null
+
+  control = document.getElementById('template_input')
+  if (control?.value) control.value = null
+
+  delimitedData.value = []
+  template.value = ''
+  results.value = ''
+  working.value = false
+}
+
 /* 
 TODO:
 * display CSV input data (sample?) in table 
@@ -158,13 +192,14 @@ TODO:
     <!--CSV file input wrapped to allow for translated text "select file" and "no file selected"-->
     <div class="row mb-3">
       <div class="col">
-        <label for="csv_input" class="col-form-label-sm text-capitalize" :lang="locale">{{
+        <label for="csv_input" class="col-form-label-sm text-capitalize fw-bold" :lang="locale">{{
           $t('delimitedDataFile')
         }}</label>
         <div class="input-group">
           <button
             class="btn btn-sm btn-outline-secondary rounded shadow-sm"
             :lang="locale"
+            :disabled="working"
             @click.stop.prevent="selectDelimitedFile"
           >
             &#128441;&nbsp;{{ $t('selectFile') }}
@@ -175,7 +210,11 @@ TODO:
             readonly
             class="form-control form-control-sm rounded shadow-sm"
             :lang="locale"
+            :disabled="working"
           />
+          <!--todo: allow choosing delimiter - currently only tab-->
+          <!--<CycleButton options="comma, tab" :disabled="working" v-model="delimiter"/>-->
+
           <input
             class="form-control-file"
             type="file"
@@ -183,6 +222,7 @@ TODO:
             name="csv_input"
             accept="text/csv,.txt"
             :lang="locale"
+            :disabled="working"
             style="width: 100%; display: none"
             @change="delimitedFileSelected"
           />
@@ -191,13 +231,14 @@ TODO:
 
       <!--template file input wrapped to allow for translated text "select file" and "no file selected"-->
       <div class="col">
-        <label for="template_input" class="col-form-label-sm text-capitalize" :lang="locale"
+        <label for="template_input" class="col-form-label-sm text-capitalize fw-bold" :lang="locale"
           >LIQUID {{ $t('templateFile') }}</label
         >
         <div class="input-group">
           <button
             class="btn btn-sm btn-outline-secondary rounded shadow-sm"
             :lang="locale"
+            :disabled="working"
             @click.stop.prevent="selectTemplateFile"
           >
             &#128441;&nbsp;{{ $t('selectFile') }}
@@ -207,6 +248,7 @@ TODO:
             :placeholder="$t('noFileSelected')"
             readonly
             :lang="locale"
+            :disabled="working"
             class="form-control form-control-sm rounded shadow-sm"
           />
           <input
@@ -215,6 +257,7 @@ TODO:
             name="template_input"
             accept=".liquid,.txt"
             :lang="locale"
+            :disabled="working"
             style="width: 100%; display: none"
             @change="templateFileSelected"
           />
@@ -237,15 +280,38 @@ TODO:
         <pre class="overflow-y-scroll">{{ template }}</pre></div>
     </div>-->
 
-    <div class="row">
-      <div class="col text-end" id="myspinnercontainer">
+    <div class="row mb-3">
+      <div class="col-1">
+        <span class="text-capitalize col-form-label-sm fw-bold" :lang="locale">{{
+          $t('result', 2)
+        }}</span>
+      </div>
+
+      <div class="col">
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input shadow-sm"
+            type="checkbox"
+            role="switch"
+            id="wraptextSwitch"
+            v-model="wrapped"
+          />
+          <label class="form-check-label col-form-label-sm" for="wraptextSwitch"
+            >{{ $t('wraptext') }}?</label
+          >
+        </div>
+      </div>
+
+      <div class="col text-end">
         <strong role="status" v-show="working" :lang="locale">{{ $t('working') }}...</strong>
         <span id="myspinner" class="spinner-border spinner-border-sm mx-2" v-show="working"></span>
       </div>
-      <div class="col-4 btn-group text-end">
+
+      <div class="col-5 btn-group text-end">
         <button
           class="btn btn-sm btn-outline-secondary form-control shadow-sm"
           :lang="locale"
+          :disabled="working"
           :alt="$t('convertData')"
           :title="$t('convertData')"
           @click.stop.prevent="doDataConversion()"
@@ -256,38 +322,50 @@ TODO:
         <button
           class="btn btn-sm btn-outline-secondary form-control shadow-sm"
           :lang="locale"
+          :disabled="!canSave"
           :alt="$t('saveResult', 2)"
           :title="$t('saveResult', 2)"
           @click.stop.prevent="saveResultsToFile()"
         >
           <span>&#128427;&nbsp;{{ $t('save') }}</span>
         </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary form-control shadow-sm"
+          :lang="locale"
+          :disabled="working"
+          :alt="$t('clear', 2)"
+          :title="$t('clear', 2)"
+          @click.stop.prevent="clearAll()"
+        >
+          <span>&#9747;&nbsp;{{ $t('clear') }}</span>
+        </button>
       </div>
     </div>
-
     <div class="row">
       <div class="col">
-        <div 
-          class="text-capitalize col-form-label-sm" 
-          :lang="locale"
-          >{{$t('result', 2)}}</div>
         <pre
-          id="conversion_results"
-          name="conversion_results"
+          id="results"
+          name="results"
           class="p-1 shadow-sm"
+          :class="{ wrapped: wrapped }"
           :lang="locale"
-        >{{ results }}</pre>
+          >{{ results }}</pre
+        >
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-#conversion_results {
+#results {
   font-size: small;
   border: 1px solid lightgray;
   overflow: scroll;
-  min-width: 1000px;
+  min-width: 1100px;
   height: 700px;
+}
+.wrapped {
+  white-space: pre-wrap;
 }
 </style>

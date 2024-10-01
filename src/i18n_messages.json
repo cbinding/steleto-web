@@ -1,5 +1,6 @@
 {
   "cy": {
+    "clear": "clirio",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "ydych chi'n siŵr?",
     "convertData": "trosi'r data",
@@ -25,9 +26,11 @@
     "templateFile": "@:file @:template",
     "title": "teitl",
     "updated": "diweddaredig",
+    "wraptext": "Testun lapio",
     "working": "gweithio"
   },
   "cs": {
+    "clear": "vymazat",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "opravdu?",
     "convertData": "převést data",
@@ -52,11 +55,13 @@
     "templateFile": "soubor šablony",
     "title": "titul | tituly",
     "updated": "aktualizovaný",
+    "wraptext": "zalomit text",
     "working": "pracovní"
   },
   "de": {
+    "clear": "löschen",
     "confirmDelete": "@:delete '{id}' - @:confirm",
-    "confirm": "bist du sicher??",
+    "confirm": "bist du sicher?",
     "convertData": "daten konvertieren",
     "created": "erstellt",
     "creator": "schöpfer",
@@ -79,9 +84,11 @@
     "templateFile": "vorlagen-Datei",
     "title": "titel",
     "updated": "aktualisierte",
+    "wraptext": "zeilenumbruch",
     "working": "arbeiten"
   },
   "en": {
+    "clear": "clear",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "are you sure?",
     "convertData": "convert data",
@@ -106,9 +113,11 @@
     "templateFile": "template file",
     "title": "title | titles",
     "updated": "updated",
+    "wraptext": "wrap text",
     "working": "working"
   },
   "es": {
+    "clear": "borrar",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "¿Estás seguro?",
     "convertData": "convertir los datos",
@@ -133,9 +142,11 @@
     "templateFile": "@:file de @:template",
     "title": "título",
     "updated": "actualizado",
+    "wraptext": "¿ajustar texto",
     "working": "funcionando"
   },
   "fr": {
+    "clear": "effacer",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "Êtes-vous sûr?",
     "convertData": "convertir les données",
@@ -159,9 +170,11 @@
     "template": "modèle | modèles",
     "title": "titre | titres",
     "updated": "actualisé",
+    "wraptext": "habiller le texte",
     "working": "marche"
   },
   "it": {
+    "clear": "cancella",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "Sei sicuro?",
     "convertData": "converti dati",
@@ -185,6 +198,7 @@
     "template": "modello | modelli",
     "title": "titolo",
     "updated": "aggiornato",
+    "wraptext": "testo a capo",
     "working": "funzionante"
   }
 }

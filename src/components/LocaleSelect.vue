@@ -18,7 +18,7 @@ const props = defineProps({
   }
 })
 
-const visible = ref(true)
+const visible = ref(false)
 
 // sorted subset of i18n_languages based on options (csv) property
 const languageSubset = computed(() => {    
@@ -82,7 +82,7 @@ const getFlagEmoji = (countryCode) => {
             for="localeSelector"
             :alt="$t('settings')"
             @click="visible = !visible"
-            :title="$t('settings')">&#x2699;</button>          
+            :title="$t('settings')">&#9881;</button>          
     </span></div>
 </template>
 
