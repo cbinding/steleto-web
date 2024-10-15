@@ -1,10 +1,7 @@
 <script setup>
 // use of custom composable - reusable code module
-import { defineProps, computed, unref } from "vue"
-import { useI18n } from "vue-i18n"
+import { defineProps, computed, toValue } from "vue"
 import { useCycle } from '@/composables/useCycle.js'
-
-const { locale }  = useI18n()
 
 const props = defineProps({
   list: { type: Array, required: true },
@@ -15,12 +12,12 @@ const props = defineProps({
 const { currentValue, next } = useCycle(props.list, props.index)
 
 const displayValue = computed(() => {
-  const item = unref(currentValue)
+  const item = toValue(currentValue)
   return (item.value || item || "").toString()
 })
 
 const displayTitle = computed(() => {
-  const item = unref(currentValue)  
+  const item = toValue(currentValue)  
   return (item.title || item.value || item || "").toString()  
 })
 </script>
@@ -30,7 +27,6 @@ const displayTitle = computed(() => {
     type="button"
     role="button"     
     class="cycle-button btn btn-sm btn-outline-secondary" 
-    :lang="locale"
     :disabled="props.disabled"
     :aria-disabled="props.disabled"
     @click.stop.prevent="next" 
