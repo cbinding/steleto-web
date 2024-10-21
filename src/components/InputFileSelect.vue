@@ -41,7 +41,7 @@ const selected = (e) => {
             </button>
             <!--visible input field-->
             <input :placeholder="props.placeholder" readonly
-                class="form-control form-control-sm rounded shadow-sm" :disabled="disabled" :value="selectedFileName" />
+                class="form-control form-control-sm rounded shadow-sm" :disabled="disabled" :value="selectedFileName"/>
             <!--(hidden) file input field-->
             <input class="form-control-file" type="file" :id="inputFileControlId" :accept="props.accept"
                 :disabled="disabled" style="width: 100%; display: none" @change="selected" />

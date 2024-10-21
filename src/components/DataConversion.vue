@@ -124,10 +124,10 @@ const clearAll = () => {
   let control = null
 
   // TODO: this will no longer work...
-  control = document.getElementById('selectedInputFile')
+  control = document.getElementById('inputFileSelector')
   if (control?.value) control.value = null
   // TODO: this will no longer work...
-  control = document.getElementById('selectedTemplateFile')
+  control = document.getElementById('templaceFileSelector')
   if (control?.value) control.value = null
   // TODO: this will no longer work...
   control = document.getElementById('inputFile')
@@ -161,19 +161,18 @@ TODO:
         <h3 class="text-capitalize" :lang="locale">{{ $t('dataConversion') }}</h3>
       </div>
       <div class="col-4">
-        <LocaleSelect options="cy,cs,de,en,es,fr,it" />
+        <LocaleSelect options="cy,cs,de,en,es,fr,it"/>
       </div>
     </div>
 
-    <!--CSV file input wrapped to allow for translated text "select file" and "no file selected"-->
     <div class="row mb-3">
       <div class="col">
         <label for="inputFileSelector" :lang="locale" class="col-form-label-sm text-capitalize fw-bold">{{
-          $t('delimitedDataFile') }}</label>
+          $t('dataFile') }}</label>
 
         <InputFileSelect id="inputFileSelector" name="inputFileSelector" :placeholder="$t('noFileSelected')"
-          :button-text="$t('selectFile')" @selected="inputFileSelected" accept=".txt" />
-        <!--todo: allow choosing delimiter - currently only tab-->
+          :button-text="$t('selectFile')" @selected="inputFileSelected" accept="text/csv,.txt" :disabled="working"/>
+        <!--todo: allow choosing delimiter - currently only hardcoded as tab-->
         <!--<CycleButton options="comma, tab" :disabled="working" v-model="delimiter"/>-->
       </div>
 
@@ -184,7 +183,7 @@ TODO:
 
         <InputFileSelect id="templateFileSelector" name="templateFileSelector"
           :placeholder="$t('noFileSelected')" :button-text="$t('selectFile')" @selected="templateFileSelected"
-          accept="text/csv,.txt" />
+          accept=".liquid" :disabled="working"/>
       </div>
     </div>
 
@@ -208,7 +207,7 @@ TODO:
       <div class="col">
         <div class="form-check form-switch">
           <input class="form-check-input shadow-sm" type="checkbox" role="switch" id="hasHeaderSwitch"
-            v-model="hasHeader" />
+            v-model="hasHeader" :disabled="working"/>
           <label class="form-check-label col-form-label-sm" for="hasHeaderSwitch">has header?</label>
         </div>
       </div>
@@ -224,7 +223,7 @@ TODO:
       <div class="col">
         <div class="form-check form-switch">
           <input class="form-check-input shadow-sm" type="checkbox" role="switch" id="wraptextSwitch"
-            v-model="wrapped" />
+            v-model="wrapped" :disabled="working"/>
           <label class="form-check-label col-form-label-sm" for="wraptextSwitch">{{ $t('wraptext') }}?</label>
         </div>
       </div>
