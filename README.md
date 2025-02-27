@@ -28,6 +28,12 @@ npm run dev
 npm run build
 ```
 
+### Deploy (GitHub pages site)
+
+```sh
+npm run deploy
+```
+
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
