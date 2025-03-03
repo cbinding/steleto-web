@@ -3,11 +3,12 @@ import { ref, computed } from 'vue'
 import { Liquid } from 'liquidjs'
 import Papa from 'papaparse'
 import moment from 'moment'
-//import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n'
 import LocaleSelect from '@/components/LocaleSelect.vue'
+//import DelimiterSelect from '@/components/DelimiterSelect.vue'
 import InputFileSelect from '@/components/InputFileSelect.vue'
 //import CycleButton from '@/components/CycleButton.vue'
-//const { locale } = useI18n()
+const { locale } = useI18n()
 
 // Tester..
 const testTemplate1 = `
@@ -21,28 +22,34 @@ const testTemplate1 = `
 const template = ref(testTemplate1)
 const rawInput = ref("")
 const hasHeader = ref(true)
-const delimiter = ref("\t")
-const results = ref('')
+const delimiter = ref(",")
+const results = ref("")
 const working = ref(false)
 const wrapped = ref(false)
+
+const inputFileSelectorRef = ref(null)
+const templateFileSelectorRef = ref(null)
 
 //const delimiter = ref('')
 
 const canSave = computed(() => working.value == false && results.value.length > 0)
+const canRun = computed(() => working.value == false && template.value != "" && rawInput.value != "")
 
 const loadTextFromFile = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (res) => {
-      resolve(res.target.result)
-    }
-    reader.onerror = (err) => reject(err)
-    reader.readAsText(file)
-  })
+  if (file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (res) => {
+        resolve(res.target.result)
+      }
+      reader.onerror = (err) => reject(err)
+      reader.readAsText(file)
+    })
+  }
 }
 
 const doDataConversion = () => {
-  results.value = ''
+  results.value = ""
   
   // no point continuing if data or template not provided
   if (template.value.trim().length == 0 || rawInput.value.trim().length == 0) return
@@ -126,23 +133,30 @@ const clearAll = () => {
   // TODO: this will no longer work...
   control = document.getElementById('inputFileSelector')
   if (control?.value) control.value = null
+
+  inputFileSelectorRef.value.clear()
+
   // TODO: this will no longer work...
-  control = document.getElementById('templaceFileSelector')
-  if (control?.value) control.value = null
-  // TODO: this will no longer work...
-  control = document.getElementById('inputFile')
-  if (control?.value) control.value = null
-  // TODO: this will no longer work...
-  control = document.getElementById('templateFile')
+  control = document.getElementById('templateFileSelector')
   if (control?.value) control.value = null
 
+  templateFileSelectorRef.value.clear()
+
+  // TODO: this will no longer work...
+  //control = document.getElementById('inputFile')
+  //if (control?.value) control.value = null
+  // TODO: this will no longer work...
+  //control = document.getElementById('templateFile')
+  //if (control?.value) control.value = null
+
   //delimitedData.value = []
+
   rawInput.value = ""
   template.value = ""
   results.value = ""
   working.value = false
   hasHeader.value = true
-  delimiter.value = "\t"
+  delimiter.value = ","
 }
 
 /* 
@@ -166,25 +180,34 @@ TODO:
     </div>
 
     <div class="row mb-3">
-      <div class="col">
-        <label for="inputFileSelector" :lang="locale" class="col-form-label-sm text-capitalize fw-bold">{{
-          $t('dataFile') }}</label>
-
-        <InputFileSelect id="inputFileSelector" name="inputFileSelector" :placeholder="$t('noFileSelected')"
-          :button-text="$t('selectFile')" @selected="inputFileSelected" accept="text/csv,.txt" :disabled="working"/>
-        <!--todo: allow choosing delimiter - currently only hardcoded as tab-->
-        <!--<CycleButton options="comma, tab" :disabled="working" v-model="delimiter"/>-->
+      <div class="col">         
+        <InputFileSelect 
+          id="inputFileSelector" 
+          ref="inputFileSelectorRef"
+          name="inputFileSelector" 
+          :label="$t('dataFile')"
+          :placeholder="$t('noFileSelected')"
+          :button-text="$t('selectFile')" 
+          @selected="inputFileSelected" 
+          accept="text/csv,.csv" 
+          :disabled="working"/>
+        <!--todo: allow choosing delimiter - currently hardcoded csv-->
+        <!--<CycleButton options="comma, tab" :disabled="working" v-model="delimiter"/>-->        
       </div>
-
+     
       <!--template file input wrapped to allow for translated text "select file" and "no file selected"-->
-      <div class="col">
-        <label for="templateFileSelector" :lang="locale" class="col-form-label-sm text-capitalize fw-bold">{{
-  $t('templateFile') }}</label>
-
-        <InputFileSelect id="templateFileSelector" name="templateFileSelector"
-          :placeholder="$t('noFileSelected')" :button-text="$t('selectFile')" @selected="templateFileSelected"
-          accept=".liquid" :disabled="working"/>
-      </div>
+      <div class="col">        
+        <InputFileSelect 
+          id="templateFileSelector" 
+          name="templateFileSelector"
+          ref="templateFileSelectorRef"
+          :label="$t('templateFile')"
+          :placeholder="$t('noFileSelected')" 
+          :button-text="$t('selectFile')" 
+          @selected="templateFileSelected"
+          accept=".liquid" 
+          :disabled="working"/>
+        </div>      
     </div>
 
     <!--<div class="row">
@@ -202,39 +225,37 @@ TODO:
         <pre class="overflow-y-scroll">{{ template }}</pre></div>
     </div>-->
 
-    <div class="row mb-3">
+    <div class="row mb-3" v-show="false" >
 
-      <div class="col">
-        <div class="form-check form-switch">
-          <input class="form-check-input shadow-sm" type="checkbox" role="switch" id="hasHeaderSwitch"
-            v-model="hasHeader" :disabled="working"/>
-          <label class="form-check-label col-form-label-sm" for="hasHeaderSwitch">has header?</label>
-        </div>
-      </div>
+      <div class="col-2" >
+        <div class="form-check form-switch" >
+          <input class="form-check-input shadow-sm" type="checkbox" checked role="switch" id="hasHeaderSwitch"
+            v-model="hasHeader" :disabled="working" />
+          <label class="form-check-label col-form-label-sm" for="hasHeaderSwitch">{{ $t('hasHeader') }}?</label>
+        </div>       
+      </div>  
     </div>
 
     <div class="row mb-3">
       <div class="col-1">
-        <span class="text-capitalize col-form-label-sm fw-bold" :lang="locale">{{
-          $t('result', 2)
-          }}</span>
+        <span class="text-capitalize col-form-label-sm fw-bold" :lang="locale">{{ $t('result', 2) }}</span>
       </div>
 
       <div class="col">
         <div class="form-check form-switch">
           <input class="form-check-input shadow-sm" type="checkbox" role="switch" id="wraptextSwitch"
             v-model="wrapped" :disabled="working"/>
-          <label class="form-check-label col-form-label-sm" for="wraptextSwitch">{{ $t('wraptext') }}?</label>
+          <label class="form-check-label col-form-label-sm" for="wraptextSwitch">{{ $t('wrapText') }}?</label>
         </div>
       </div>
-
+      
       <div class="col text-end">
         <strong role="status" v-show="working" :lang="locale">{{ $t('working') }}...</strong>
         <span id="myspinner" class="spinner-border spinner-border-sm mx-2" v-show="working"></span>
       </div>
 
       <div class="col-5 btn-group text-end">
-        <button class="btn btn-sm btn-outline-secondary form-control shadow-sm" :lang="locale" :disabled="working"
+        <button class="btn btn-sm btn-outline-secondary form-control shadow-sm" :lang="locale" :disabled="!canRun"
           :alt="$t('convertData')" :title="$t('convertData')" @click.stop.prevent="doDataConversion()">
           <span>🗲&nbsp;{{ $t('convert') }}</span>
         </button>
