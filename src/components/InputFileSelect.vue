@@ -1,5 +1,6 @@
 <script setup>
 import { defineProps, defineEmits, ref, useId } from "vue"
+//import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
     placeholder: { type: String, required: false, default: "No file selected" },
@@ -13,22 +14,41 @@ const selectedFileName = ref("")
 const inputFileControlId = useId()
 const emit = defineEmits(["selected"])
 
+
 const selectFile = () => {
     // click the underlying file control
     const control = document.getElementById(inputFileControlId)
     control.click()
 }
 
+
+// todo - use to clear the control programmatically
+const clear = () => { 
+    selectedFileName.value = ""   
+    // this should reset the underlying file control (not tested yet)
+    // see https://stackoverflow.com/questions/829571/clearing-an-html-file-upload-field-via-javascript/62224815#62224815
+    const control = document.getElementById(inputFileControlId)
+    control.type = "text"
+    control.type = "file"
+    control.value = null
+}
+
+
 const selected = (e) => {
     const inputFile = e.target.files[0]
     
-    // change text on wrapper control to display chosen file name
+    // changes text on wrapper control to display chosen file name
     // wrapper used to display translated labels for inflexible file input control)
-    //let control = document.getElementById(inputId)
-    //control.value = inputFile?.name
+    // let control = document.getElementById(inputId)
+    // control.value = inputFile?.name
     selectedFileName.value = inputFile?.name
     emit("selected", inputFile)
 }
+
+defineExpose({
+    clear
+});
+
 </script>
 
 <template>

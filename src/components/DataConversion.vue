@@ -3,11 +3,11 @@ import { ref, computed } from 'vue'
 import { Liquid } from 'liquidjs'
 import Papa from 'papaparse'
 import moment from 'moment'
-import { useI18n } from 'vue-i18n'
+//import { useI18n } from 'vue-i18n'
 import LocaleSelect from '@/components/LocaleSelect.vue'
 import InputFileSelect from '@/components/InputFileSelect.vue'
 //import CycleButton from '@/components/CycleButton.vue'
-const { locale } = useI18n()
+//const { locale } = useI18n()
 
 // Tester..
 const testTemplate1 = `

@@ -83,7 +83,8 @@ const getFlagEmoji = (countryCode) => {
             :alt="$t('settings')"
             @click="visible = !visible"
             :title="$t('settings')">&#9881;</button>          
-    </span></div>
+    </span>
+  </div>
 </template>
 
 <style scoped>

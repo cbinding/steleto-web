@@ -1,5 +1,6 @@
 {
   "cy": {
+    "appname": "STELETO",
     "clear": "clirio",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "ydych chi'n siŵr?",
@@ -8,7 +9,7 @@
     "created": "creu",
     "content": "cynnwys",
     "convert": "trosi",
-    "dataConversion": "trosi data",
+    "dataConversion": "@:appname - trosi data",
     "dataFile": "@:file ddata",
     "delete": "dileu",
     "delimitedDataFile": "@:dataFile wedi'i hamffinio",
@@ -31,6 +32,7 @@
     "working": "gweithio"
   },
   "cs": {
+    "appname": "STELETO",    
     "clear": "vymazat",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "opravdu?",
@@ -40,7 +42,7 @@
     "content": "obsah",
     "convert": "přeměnit",
     "dataFile": "datový soubor",
-    "dataConversion": "konverze dat",
+    "dataConversion": "@:appname - konverze dat",
     "delete": "vymazat",
     "delimitedDataFile": "@:dataFile s oddělovači",
     "description": "popis",
@@ -61,6 +63,7 @@
     "working": "pracovní"
   },
   "de": {
+    "appname": "STELETO",    
     "clear": "löschen",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "bist du sicher?",
@@ -69,7 +72,7 @@
     "creator": "schöpfer",
     "content": "inhalt",
     "convert": "umwandeln",
-    "dataConversion": "datenkonvertierung",
+    "dataConversion": "@:appname - datenkonvertierung",
     "dataFile": "datendatei",
     "delete": "löschen",
     "delimitedDataFile": "@:dataFile mit trennzeichen",
@@ -91,6 +94,7 @@
     "working": "arbeiten"
   },
   "en": {
+    "appname": "STELETO",    
     "clear": "clear",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "are you sure?",
@@ -99,7 +103,7 @@
     "creator": "creator",
     "content": "content",
     "convert": "convert",
-    "dataConversion": "data conversion",
+    "dataConversion": "@:appname - data conversion",
     "dataFile": "data file",
     "delete": "delete",
     "delimitedDataFile": "delimited @:dataFile",
@@ -121,6 +125,7 @@
     "working": "working"
   },
   "es": {
+    "appname": "STELETO",    
     "clear": "borrar",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "¿Estás seguro?",
@@ -129,7 +134,7 @@
     "creator": "creador",
     "content": "contenido",
     "convert": "convertir",
-    "dataConversion": "conversión de datos",
+    "dataConversion": "@:appname - conversión de datos",
     "dataFile": "@:file de datos",
     "delete": "borrar",
     "delimitedDataFile": "@:dataFile delimitado",
@@ -151,6 +156,7 @@
     "working": "funcionando"
   },
   "fr": {
+    "appname": "STELETO",    
     "clear": "effacer",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "Êtes-vous sûr?",
@@ -159,7 +165,7 @@
     "creator": "créateur",
     "content": "contenu",
     "convert": "convertir",
-    "dataConversion": "conversion des données",
+    "dataConversion": "@:appname - conversion des données",
     "dataFile": "fichier de données",
     "delete": "supprimer",
     "delimitedDataFile": "@:dataFile délimité",
@@ -180,6 +186,7 @@
     "working": "marche"
   },
   "it": {
+    "appname": "STELETO",
     "clear": "cancella",
     "confirmDelete": "@:delete '{id}' - @:confirm",
     "confirm": "Sei sicuro?",
@@ -188,7 +195,7 @@
     "creator": "creatore",
     "content": "contenuto",
     "convert": "convertire",
-    "dataConversion": "conversione dei dati",
+    "dataConversion": "@:appname - conversione dei dati",
     "dataFile": "file di dati",
     "delete": "cancellare",
     "delimitedDataFile": "@:dataFile delimitato",
