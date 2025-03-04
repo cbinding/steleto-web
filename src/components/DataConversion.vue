@@ -20,7 +20,7 @@ const testTemplate1 = `
 {%- endfor -%}
 `
 const template = ref(testTemplate1)
-const rawInput = ref("")
+const inputData = ref({})
 const hasHeader = ref(true)
 const delimiter = ref(",")
 const results = ref("")
@@ -33,7 +33,8 @@ const templateFileSelectorRef = ref(null)
 //const delimiter = ref('')
 
 const canSave = computed(() => working.value == false && results.value.length > 0)
-const canRun = computed(() => working.value == false && template.value != "" && rawInput.value != "")
+const canRun = computed(() => working.value == false && template.value != "")
+
 
 const loadTextFromFile = (file) => {
   if (file) {
@@ -48,32 +49,45 @@ const loadTextFromFile = (file) => {
   }
 }
 
+//TODO - for remote files
+//const loadTextFromURL = (url) => fetch(url).then(response => response.text())
+
+const parseDataFromText = (text, isJSON) => {
+  let parsed = null
+  if (isJSON) 
+    parsed = {
+      data: JSON.parse(text.trim()),
+      errors: [],
+      meta: {}
+    } 
+  else {
+    parsed = Papa.parse(text.trim(), {
+      encoding: 'UTF-8',
+      delimiter: '', // auto-detect instead of specifying delimiter.value,
+      header: hasHeader.value,
+      skipEmptyLines: 'greedy'
+    }) 
+  }
+  return parsed
+}
+
+
 const doDataConversion = () => {
   results.value = ""
   
-  // no point continuing if data or template not provided
-  if (template.value.trim().length == 0 || rawInput.value.trim().length == 0) return
+  // no point continuing if either data or template not provided
+  if (template.value.trim().length == 0 || inputData.value.length == 0) return
 
   // show the spinner
   working.value = true
 
   // use setTimeout so spinner displays (otherwise no re-render occurs)  
   setTimeout(() => {
-
-    // parse delimited data to an array
-    const parsed = Papa.parse(rawInput.value.trim(), {
-      encoding: 'UTF-8',
-      delimiter: delimiter.value,
-      header: hasHeader.value,
-      skipEmptyLines: 'greedy'
-    })
-    // TODO: display parsed.errors?
-    //console.log(parsed.data[1])
-
+    
     // convert parsed data using Liquid template
     const engine = new Liquid()
     engine
-      .parseAndRender(template.value, { data: parsed.data })
+      .parseAndRender(template.value, inputData.value)
       .then((text) => {
         //console.log(text.substring(0, 100))
         results.value = text
@@ -87,6 +101,7 @@ const doDataConversion = () => {
   }, 0)
 }
 
+
 const saveResultsToFile = (fileName = null) => {
   //const fileName = `results-12345.txt`
   //console.log(fileName)
@@ -94,9 +109,9 @@ const saveResultsToFile = (fileName = null) => {
 
   // if no fileName is passed use a default (timestamped) name
   fileName = fileName || `steleto-${moment().format('YYYYMMDDHHmmss')}.txt`
-
   saveTextToFile(results.value, fileName)
 }
+
 
 const saveTextToFile = (textData, fileName) => {
   let blob = new Blob([textData], { type: 'text/plain;charset=utf-8;' })
@@ -119,13 +134,20 @@ const saveTextToFile = (textData, fileName) => {
   }
 }
 
-const inputFileSelected = (e) => {
-  loadTextFromFile(e).then(data => rawInput.value = data) 
+
+const inputFileSelected = (f) => {
+  //console.log(f) 
+  const isJSON = f.name.trim().toLowerCase().endsWith(".json")
+  loadTextFromFile(f)
+    .then(text => parseDataFromText(text, isJSON))
+    .then(data => inputData.value = data) 
 }
 
+
 const templateFileSelected = (e) => {
-  loadTextFromFile(e).then(data => template.value = data)
+  loadTextFromFile(e).then(text => template.value = text)
 }
+
 
 const clearAll = () => {
   let control = null
@@ -133,25 +155,17 @@ const clearAll = () => {
   // TODO: this will no longer work...
   control = document.getElementById('inputFileSelector')
   if (control?.value) control.value = null
-
+  // this should?
   inputFileSelectorRef.value.clear()
 
   // TODO: this will no longer work...
   control = document.getElementById('templateFileSelector')
   if (control?.value) control.value = null
-
+  // this should?
   templateFileSelectorRef.value.clear()
 
-  // TODO: this will no longer work...
-  //control = document.getElementById('inputFile')
-  //if (control?.value) control.value = null
-  // TODO: this will no longer work...
-  //control = document.getElementById('templateFile')
-  //if (control?.value) control.value = null
-
   //delimitedData.value = []
-
-  rawInput.value = ""
+  inputData.value = null
   template.value = ""
   results.value = ""
   working.value = false
@@ -175,39 +189,24 @@ TODO:
         <h3 class="text-capitalize" :lang="locale">{{ $t('dataConversion') }}</h3>
       </div>
       <div class="col-4">
-        <LocaleSelect options="cy,cs,de,en,es,fr,it"/>
+        <LocaleSelect options="cy,cs,de,en,es,fr,it,sv" />
       </div>
     </div>
 
     <div class="row mb-3">
-      <div class="col">         
-        <InputFileSelect 
-          id="inputFileSelector" 
-          ref="inputFileSelectorRef"
-          name="inputFileSelector" 
-          :label="$t('dataFile')"
-          :placeholder="$t('noFileSelected')"
-          :button-text="$t('selectFile')" 
-          @selected="inputFileSelected" 
-          accept="text/csv,.csv" 
-          :disabled="working"/>
-        <!--todo: allow choosing delimiter - currently hardcoded csv-->
-        <!--<CycleButton options="comma, tab" :disabled="working" v-model="delimiter"/>-->        
+      <div class="col">
+        <!--file input wrapped to allow for translated text "select file" and "no file selected"-->
+        <InputFileSelect id="inputFileSelector" ref="inputFileSelectorRef" name="inputFileSelector"
+          :label="$t('dataFile')" :placeholder="$t('noFileSelected')" :button-text="$t('selectFile')"
+          @selected="inputFileSelected" accept="text/csv,text/tab-separated-values,application/json,.txt,.tab,.tsv" :disabled="working" />        
       </div>
-     
-      <!--template file input wrapped to allow for translated text "select file" and "no file selected"-->
-      <div class="col">        
-        <InputFileSelect 
-          id="templateFileSelector" 
-          name="templateFileSelector"
-          ref="templateFileSelectorRef"
-          :label="$t('templateFile')"
-          :placeholder="$t('noFileSelected')" 
-          :button-text="$t('selectFile')" 
-          @selected="templateFileSelected"
-          accept=".liquid" 
-          :disabled="working"/>
-        </div>      
+
+      <div class="col">
+        <!--file input wrapped to allow for translated text "select file" and "no file selected"-->      
+        <InputFileSelect id="templateFileSelector" name="templateFileSelector" ref="templateFileSelectorRef"
+          :label="$t('templateFile')" :placeholder="$t('noFileSelected')" :button-text="$t('selectFile')"
+          @selected="templateFileSelected" accept=".liquid" :disabled="working" />
+      </div>
     </div>
 
     <!--<div class="row">
@@ -225,15 +224,15 @@ TODO:
         <pre class="overflow-y-scroll">{{ template }}</pre></div>
     </div>-->
 
-    <div class="row mb-3" v-show="false" >
+    <div class="row mb-3" v-show="false">
 
-      <div class="col-2" >
-        <div class="form-check form-switch" >
+      <div class="col-2">
+        <div class="form-check form-switch">
           <input class="form-check-input shadow-sm" type="checkbox" checked role="switch" id="hasHeaderSwitch"
             v-model="hasHeader" :disabled="working" />
           <label class="form-check-label col-form-label-sm" for="hasHeaderSwitch">{{ $t('hasHeader') }}?</label>
-        </div>       
-      </div>  
+        </div>
+      </div>
     </div>
 
     <div class="row mb-3">
@@ -243,12 +242,12 @@ TODO:
 
       <div class="col">
         <div class="form-check form-switch">
-          <input class="form-check-input shadow-sm" type="checkbox" role="switch" id="wraptextSwitch"
-            v-model="wrapped" :disabled="working"/>
+          <input class="form-check-input shadow-sm" type="checkbox" role="switch" id="wraptextSwitch" v-model="wrapped"
+            :disabled="working" />
           <label class="form-check-label col-form-label-sm" for="wraptextSwitch">{{ $t('wrapText') }}?</label>
         </div>
       </div>
-      
+
       <div class="col text-end">
         <strong role="status" v-show="working" :lang="locale">{{ $t('working') }}...</strong>
         <span id="myspinner" class="spinner-border spinner-border-sm mx-2" v-show="working"></span>
@@ -278,6 +277,7 @@ TODO:
       </div>
     </div>
   </div>
+
 </template>
 
 <style scoped>
