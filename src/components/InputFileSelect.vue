@@ -1,13 +1,10 @@
 <script setup>
 import { defineEmits, ref, useId } from "vue"
-//import { useI18n } from 'vue-i18n'
-
-//const { locale } = useI18n()
 
 const props = defineProps({
-    label: { type: String, required: false, default: "Select File" },
-    placeholder: { type: String, required: false, default: "No file selected" },
-    buttonText: { type: String, required: false, default: "No file selected" },
+    label: { type: String, required: false, default: "select file" },
+    placeholder: { type: String, required: false, default: "no file selected" },
+    buttonText: { type: String, required: false, default: "no file selected" },
     disabled: { type: Boolean, required: false, default: false },
     accept: { type: String, required: false, default: "text/csv,.txt" }
 })
@@ -17,7 +14,6 @@ const selectedFileName = ref("")
 const inputFileControlId = useId()
 const inputFileVisibleId = useId()
 const emit = defineEmits(["selected"])
-
 
 const selectLocalFile = () => {
     // click the underlying file control to make

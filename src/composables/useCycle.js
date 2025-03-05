@@ -11,7 +11,7 @@ Example   :
   const { state, prev, next } = useCycle(['CE', 'BCE', 'BP'])
   next(); console.log(state); // 'BCE'
   prev(); console.log(state); // 'CE'
-  prev(); console.log(state); // 'BP'  
+  prev(); console.log(state); // 'BP'
 License   : TODO
 =============================================================================
 History

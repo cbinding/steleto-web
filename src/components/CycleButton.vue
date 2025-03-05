@@ -1,6 +1,6 @@
 <script setup>
-// use of custom composable - reusable code module
 import { defineProps, computed, toValue } from "vue"
+// custom composable - reusable code module
 import { useCycle } from "@/composables/useCycle.js"
 
 const props = defineProps({

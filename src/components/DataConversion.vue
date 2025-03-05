@@ -5,21 +5,13 @@ import Papa from 'papaparse'
 import moment from 'moment'
 import { useI18n } from 'vue-i18n'
 import LocaleSelect from '@/components/LocaleSelect.vue'
+import { LocaleDisplayOption } from "@/composables/Constants.js"
 //import DelimiterSelect from '@/components/DelimiterSelect.vue'
 import InputFileSelect from '@/components/InputFileSelect.vue'
 //import CycleButton from '@/components/CycleButton.vue'
 const { locale } = useI18n()
 
-// Tester..
-const testTemplate1 = `
-{%- for row in data -%}
-{% if row.concept_id %}
-{%- capture CONCEPTURI -%}http://tempuri/schemes/1/concepts/{{ row.concept_id | strip | url_encode }}{%- endcapture -%}
-<{{ CONCEPTURI }}> .
-{% endif %}
-{%- endfor -%}
-`
-const template = ref(testTemplate1)
+const template = ref("")
 const inputData = ref({})
 const hasHeader = ref(true)
 const delimiter = ref(",")
@@ -57,13 +49,13 @@ const parseDataFromText = (text, isJSON) => {
   if (isJSON) 
     parsed = {
       data: JSON.parse(text.trim()),
-      errors: [],
-      meta: {}
+      errors: [], //temp
+      meta: {} //temp
     } 
   else {
     parsed = Papa.parse(text.trim(), {
       encoding: 'UTF-8',
-      delimiter: '', // auto-detect instead of specifying delimiter.value,
+      delimiter: '', // auto-detect instead of specifying
       header: hasHeader.value,
       skipEmptyLines: 'greedy'
     }) 
@@ -137,7 +129,7 @@ const saveTextToFile = (textData, fileName) => {
 
 const inputFileSelected = (f) => {
   //console.log(f) 
-  const isJSON = f.name.trim().toLowerCase().endsWith(".json")
+  const isJSON = (f || {}).name?.trim().toLowerCase().endsWith(".json")
   loadTextFromFile(f)
     .then(text => parseDataFromText(text, isJSON))
     .then(data => inputData.value = data) 
@@ -189,7 +181,7 @@ TODO:
         <h3 class="text-capitalize" :lang="locale">{{ $t('dataConversion') }}</h3>
       </div>
       <div class="col-4">
-        <LocaleSelect options="cy,cs,de,en,es,fr,it,sv" />
+        <LocaleSelect options="cy,cs,da,de,el,en,es,fi,fr,it,nl,no,pl,sv" :display="LocaleDisplayOption.LOCALE_ONLY"/>
       </div>
     </div>
 
