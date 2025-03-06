@@ -6,10 +6,11 @@ const props = defineProps({
     placeholder: { type: String, required: false, default: "no file selected" },
     buttonText: { type: String, required: false, default: "no file selected" },
     disabled: { type: Boolean, required: false, default: false },
-    accept: { type: String, required: false, default: "text/csv,.txt" }
+    accept: { type: String, required: false, default: "text/csv,.txt" },
+    multiple: { type: Boolean, required: false, default: false }
 })
 
-const selectedFileName = ref("")
+const selectedFileNames = ref("")
 // unique id for input control so we can use .getElementById
 const inputFileControlId = useId()
 const inputFileVisibleId = useId()
@@ -25,7 +26,7 @@ const selectLocalFile = () => {
 
 // todo - use to clear the control programmatically
 const clear = () => { 
-    selectedFileName.value = ""   
+    selectedFileNames.value = ""   
 
     let el = document.getElementById(inputFileControlId)
     el.value = ""
@@ -35,15 +36,15 @@ const clear = () => {
 }
 
 
-const localFileSelected = (e) => {
-    const inputFile = e.target.files[0]
+const localFilesSelected = (e) => {
+    const files = e.target.files
     
     // changes text on wrapper control to display chosen file name
     // wrapper used to display translated labels for inflexible file input control)
     // let control = document.getElementById(inputId)
     // control.value = inputFile?.name
-    selectedFileName.value = inputFile?.name
-    emit("selected", inputFile)
+    selectedFileNames.value = Array.from(files).map(f => f.name).join(";")
+    emit("selected", files)
 }
 
 defineExpose({
@@ -63,14 +64,14 @@ defineExpose({
             </button>
             <!--visible input field-->
             <input :placeholder="props.placeholder" readonly :id="inputFileVisibleId" @click.stop.prevent="selectLocalFile"
-                class="form-control form-control-sm rounded shadow-sm" :disabled="disabled" :value="selectedFileName" />
+                class="form-control form-control-sm rounded shadow-sm" :disabled="disabled" :value="selectedFileNames" />
             <!--<button 
             class="btn btn-sm btn-outline-secondary rounded shadow-sm" :lang="locale" :disabled="disabled"
             :alt="$t('clear', 2)" :title="$t('clear', 2)" @click.stop.prevent="clear()"><span>&#9747;</span>
         </button>-->
             <!--(hidden) file input field-->
             <input class="form-control-file" type="file" :id="inputFileControlId" :accept="props.accept"
-                style="width: 100%; display: none" @change="localFileSelected" />
+                style="width: 100%; display: none" @change="localFilesSelected" :multiple="props.multiple"/>
         </div>
     </div>
 

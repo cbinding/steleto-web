@@ -12,91 +12,93 @@ import InputFileSelect from '@/components/InputFileSelect.vue'
 const { locale } = useI18n()
 
 const template = ref("")
-const inputData = ref({})
 const hasHeader = ref(true)
 const delimiter = ref(",")
-const results = ref("")
+const results = ref([])
 const working = ref(false)
-const wrapped = ref(false)
+const wrapped = ref(true)
+const inputData = ref([])
 
 const inputFileSelectorRef = ref(null)
 const templateFileSelectorRef = ref(null)
 
-//const delimiter = ref('')
-
+//TODO - for remote files
+//const loadTextFromURL = (url) => fetch(url).then(response => response.text())
 const canSave = computed(() => working.value == false && results.value.length > 0)
 const canRun = computed(() => working.value == false && template.value != "")
 
 
 const loadTextFromFile = (file) => {
-  if (file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = (res) => {
-        resolve(res.target.result)
-      }
-      reader.onerror = (err) => reject(err)
-      reader.readAsText(file)
-    })
-  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (res) => resolve(res.target?.result)      
+    reader.onerror = (err) => { console.log(err); reject(err); }
+    reader.readAsText(file)
+  })
 }
-
-//TODO - for remote files
-//const loadTextFromURL = (url) => fetch(url).then(response => response.text())
 
 const parseDataFromText = (text, isJSON) => {
-  let parsed = null
-  if (isJSON) 
-    parsed = {
-      data: JSON.parse(text.trim()),
-      errors: [], //temp
-      meta: {} //temp
-    } 
-  else {
-    parsed = Papa.parse(text.trim(), {
-      encoding: 'UTF-8',
-      delimiter: '', // auto-detect instead of specifying
-      header: hasHeader.value,
-      skipEmptyLines: 'greedy'
-    }) 
-  }
-  return parsed
+
+  return new Promise((resolve, reject) => {
+    if (isJSON) {
+      resolve({
+        data: JSON.parse(text.trim()),
+        errors: [], //temp
+        meta: {} //temp
+      })
+    }
+    else {
+      Papa.parse(text.trim(), {
+        encoding: "UTF-8",
+        delimiter: "", // auto-detect instead of specifying
+        header: hasHeader.value,
+        skipEmptyLines: "greedy",
+        complete(results) { resolve(results) },
+        error(err) { console.log(err); reject(err); }
+      })
+    }
+  })
 }
 
+const parseDataFromFile = (file) => { 
+  return new Promise((resolve, reject) => {
+    const isJSON = file.type == "application/json"
+    loadTextFromFile(file)
+      .then(text => parseDataFromText(text, isJSON))
+      .then(data => resolve(data))
+      .catch(err => reject(err))
+  })
+}
 
 const doDataConversion = () => {
-  results.value = ""
-  
+  results.value = []
+
   // no point continuing if either data or template not provided
   if (template.value.trim().length == 0 || inputData.value.length == 0) return
 
   // show the spinner
-  working.value = true
-
-  // use setTimeout so spinner displays (otherwise no re-render occurs)  
+  working.value = true  
+  // using setTimeout so spinner displays (otherwise no re-render occurs)  
   setTimeout(() => {
-    
-    // convert parsed data using Liquid template
     const engine = new Liquid()
-    engine
-      .parseAndRender(template.value, inputData.value)
-      .then((text) => {
-        //console.log(text.substring(0, 100))
-        results.value = text
-        working.value = false
+
+    const converters = inputData.value.map(data => engine.parseAndRender(template.value, data))
+    
+    // Trigger Promises
+    Promise.all(converters)
+      .then((values) => {
+        results.value = values
+        working.value = false       
       })
-      .catch((err) => {
-        // display any template error
-        results.value = err 
+      .catch(err => { 
+        results.value = [err]
         working.value = false
-      })
+      })   
   }, 0)
 }
 
 
 const saveResultsToFile = (fileName = null) => {
-  //const fileName = `results-12345.txt`
-  //console.log(fileName)
   if (!canSave.value) return
 
   // if no fileName is passed use a default (timestamped) name
@@ -127,39 +129,34 @@ const saveTextToFile = (textData, fileName) => {
 }
 
 
-const inputFileSelected = (f) => {
-  //console.log(f) 
-  const isJSON = (f || {}).name?.trim().toLowerCase().endsWith(".json")
-  loadTextFromFile(f)
-    .then(text => parseDataFromText(text, isJSON))
-    .then(data => inputData.value = data) 
+const inputFilesSelected = (files) => {
+  const fileArray = Array.from(files || [])
+
+  // Abort if there were no files selected
+  if (!fileArray.length) return
+
+  // Store promises in array 
+  let readers = fileArray.map(parseDataFromFile)
+      
+  // Trigger promises and store parsed results
+  Promise.all(readers).then(parsed =>inputData.value = parsed) 
 }
 
 
-const templateFileSelected = (e) => {
-  loadTextFromFile(e).then(text => template.value = text)
+const templateFileSelected = (files) => {  
+  const file = Array.from(files || [])[0]
+  loadTextFromFile(file).then(text => template.value = text) 
 }
 
 
 const clearAll = () => {
-  let control = null
 
-  // TODO: this will no longer work...
-  control = document.getElementById('inputFileSelector')
-  if (control?.value) control.value = null
-  // this should?
   inputFileSelectorRef.value.clear()
-
-  // TODO: this will no longer work...
-  control = document.getElementById('templateFileSelector')
-  if (control?.value) control.value = null
-  // this should?
   templateFileSelectorRef.value.clear()
 
-  //delimitedData.value = []
-  inputData.value = null
   template.value = ""
-  results.value = ""
+  results.value = []
+  inputData.value = []// allows for multiple input files
   working.value = false
   hasHeader.value = true
   delimiter.value = ","
@@ -188,9 +185,17 @@ TODO:
     <div class="row mb-3">
       <div class="col">
         <!--file input wrapped to allow for translated text "select file" and "no file selected"-->
-        <InputFileSelect id="inputFileSelector" ref="inputFileSelectorRef" name="inputFileSelector"
-          :label="$t('dataFile')" :placeholder="$t('noFileSelected')" :button-text="$t('selectFile')"
-          @selected="inputFileSelected" accept="text/csv,text/tab-separated-values,application/json,.txt,.tab,.tsv" :disabled="working" />        
+        <InputFileSelect 
+          id="inputFileSelector" 
+          ref="inputFileSelectorRef" 
+          name="inputFileSelector"
+          :label="$t('dataFile')" 
+          :placeholder="$t('noFileSelected')" 
+          :button-text="$t('selectFile')"
+          @selected="inputFilesSelected" 
+          accept="text/csv,text/tab-separated-values,application/json,.txt,.tab,.tsv" 
+          :disabled="working" 
+          multiple/>        
       </div>
 
       <div class="col">
@@ -265,7 +270,7 @@ TODO:
     <div class="row">
       <div class="col">
         <pre id="results" name="results" class="p-1 shadow-sm" :class="{ wrapped: wrapped }"
-          :lang="locale">{{ results }}</pre>
+          :lang="locale">{{ results.join("\n") }}</pre>
       </div>
     </div>
   </div>
