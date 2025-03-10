@@ -9,7 +9,7 @@ Example - input data file (myinputdata.csv):
 
 ```csv
 label, price, quantity
-"item 1", 1.50, 24
+"item 1", 1.57, 24
 "item 2", 2.75, 18
 "item 3", 3.67, 6
 ```
@@ -20,7 +20,7 @@ OR input data (myinputdata.json):
 [
   {
     "label": "item 1",
-    "price": 1.5,
+    "price": 1.57,
     "quantity": 24
   },
   {
