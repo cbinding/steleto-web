@@ -52,6 +52,7 @@ const parseDataFromText = (text, isJSON) => {
         encoding: "UTF-8",
         delimiter: "", // auto-detect instead of specifying
         header: hasHeader.value,
+        transformHeader: (header) => header.trim(), // avoid problems with spaces in headers
         skipEmptyLines: "greedy",
         complete(results) { resolve(results) },
         error(err) { console.log(err); reject(err); }
